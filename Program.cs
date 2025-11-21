@@ -4,10 +4,14 @@ using TacticalSync.Core;
 
 class Program
 {
+    /// <summary>
+    /// Tactical Edge Synchronization PoC 
+    /// Simulates offline-first data synchronization.
+    /// </summary>
     static void Main(string[] args)
     {
-        //RunScenario_BasicSync();
-        //RunScenario_NetworkPartition();
+        RunScenario_BasicSync();
+        RunScenario_NetworkPartition();
         RunScenario_ConcurrentConflicts();
         RunScenario_AuditIntegrity();
     }
@@ -24,8 +28,8 @@ class Program
 
         // Both nodes online and synced
         Console.WriteLine("\n[Phase 1] Initial sync - both nodes online");
-        fobAlpha.CreateReport("Enemy patrol observed", 12, "123,123", "Infantry Squad", "AK-47", "RPG");
-        commandCenter.CreateReport("Artillery position identified", 6, "412,142", "Artillery Battery", "tank");
+        fobAlpha.CreateReport("Enemy patrol observed", 12, "123,123", "Infantry Squad", "Rifle", "RPG");
+        commandCenter.CreateReport("Artillery position identified", 6, "412,142", "Artillery Battery", "Tank");
 
         network.TrySync(fobAlpha, commandCenter);
 
@@ -221,7 +225,7 @@ class Program
         // Demonstrate tamper detection
         Console.WriteLine("\n[Phase 3] test for tamper");
         Console.WriteLine("modifying the audit entry");
-
+        
         var auditCopy = fob.GetAuditTrail();
         if (auditCopy.Count > 2)
         {
@@ -230,6 +234,6 @@ class Program
             Console.WriteLine($"Tampered entry verification: {(isValid ? "is UNDETECTED" : "is DETECTED")}");
         }
 
-        Console.WriteLine($"\nOriginal chain still valid: {(fob.VerifyAuditChain() ? "YES" : "NO")}");
+        Console.WriteLine($"\nOriginal chain still valid: {(fob.VerifyAuditChain() ? "YES (incorrect)" : "NO (correct)")}"); // should be No since the returned List copies references
     }
 }
