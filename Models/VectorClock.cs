@@ -58,14 +58,16 @@ public class VectorClock
     ///           0 if concurrent (neither causally precedes the other)
     ///           1 if this > other (this causally follows other)
     /// </summary>
+    ///
+    /// set notation All V_a[i] >= V_b[i] for all i, and there exists some index j where V_a[j] > V_b[j] → Accept V_a as winnder
     /// 
     public int CompareTo(VectorClock other)
     {
-        bool thisLessOrEqual = true;
+        bool thisVectorLessOrEqual = true;
         bool otherLessOrEqual = true;
 
         var allKeys = new HashSet<string>(Clocks.Keys);
-        allKeys.UnionWith(other.Clocks.Keys);
+        allKeys.UnionWith(other.Clocks.Keys); // [A, B, C] union [B, C, D] = [A, B, C, D]
 
         foreach (var key in allKeys)
         {
@@ -74,7 +76,7 @@ public class VectorClock
 
             if (thisValue > otherValue)
             {
-                thisLessOrEqual = false; // this is NOT <= other
+                thisVectorLessOrEqual = false; // this is NOT <= other
             }
 
             if (otherValue > thisValue)
@@ -83,31 +85,31 @@ public class VectorClock
             }
         }
 
-        if (thisLessOrEqual && otherLessOrEqual)
+        if (thisVectorLessOrEqual && otherLessOrEqual)
         {
             return 0; // Equal
         }
 
-        if (thisLessOrEqual)
+        if (thisVectorLessOrEqual)
         {
-            return -1; // This causally precedes other
+            return -1; // This vectorClock is before the other
         }
 
         if (otherLessOrEqual)
         {
-            return 1; // This causally follows other
+            return 1; // This causally follows after other
         }
 
         return 0; // concurrent
         
-        // If neither is less than or equal to the other, they are concurrent`
+        // If neither is less than nor equal to the other, they are concurrent`
     }
 
     public VectorClock Clone()
     {
         return new VectorClock(new Dictionary<string, int>(Clocks));
     }
-
+    
     public override string ToString()
     {
         var items = Clocks.OrderBy(kvp => kvp.Key).Select(kvp => $"{kvp.Key}:{kvp.Value}");
