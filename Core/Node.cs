@@ -14,12 +14,12 @@ namespace TacticalSync.Core
         public string NodeId { get; set; }
 
         /// <summary>
-        /// Node's vector clock tracking its logical time.
+        /// Node's vector clock tracking its logical time iteration
         /// </summary>
         private readonly Dictionary<string, IntelligenceReport> _localStore;
 
         /// <summary>
-        /// Node's vector clock tracking its logical time.
+        /// Node's vector clock tracking its logical time iteration
         /// </summary>
         private VectorClock _nodeClock;
 
@@ -39,13 +39,15 @@ namespace TacticalSync.Core
             NodeId = nodeId;
             _localStore = new Dictionary<string, IntelligenceReport>();
             _nodeClock = new VectorClock();
+            _nodeClock.Increment(nodeId); // Initialize with 1
             _auditTrail = new List<AuditLog>();
         }
-        
+
         /// <summary>
         /// Create a new intelligence report on this node based on SALUTE format.
         /// </summary>
-        public IntelligenceReport CreateReport(string activity, int size, string location, string unit, params string[] equipment)
+        public IntelligenceReport CreateReport(string activity, int size, string location, string unit,
+            params string[] equipment)
         {
             lock (_lock)
             {
@@ -60,13 +62,87 @@ namespace TacticalSync.Core
                     LastModified = DateTime.UtcNow,
                     VectorClock = _nodeClock.Clone() // Clone the vector clock to avoid reference issues
                 };
-                
+
                 _nodeClock.Increment(NodeId); // Increment the vector clock for the node
                 report.VectorClock.Increment(NodeId); // Increment the vector clock for the node
-                
+
                 _localStore[report.Id] = report;
+
+                AddAuditEntry("CREATE_REPORT", report.Id, "SUCCESS", $"Created report: {activity}");
+                report.AuditHash = _auditTrail.Last().CurrentHash;
+
+                Console.WriteLine($"[{NodeId}] Created report {report.Id}: {activity}");
                 return report;
             }
+        }
+
+        public bool UpdateReport(string reportId, Action<IntelligenceReport> updateAction)
+        {
+            lock (_lock)
+            {
+                if (!_localStore.ContainsKey(reportId))
+                {
+                    Console.WriteLine($"[{NodeId}] Report {reportId} not found");
+                    return false;
+                }
+
+                var report = _localStore[reportId];
+                updateAction(report);
+
+                report.LastModifiedBy = NodeId;
+                report.LastModified = DateTime.UtcNow;
+                _nodeClock.Increment(NodeId);
+                report.VectorClock.Increment(NodeId);
+
+                AddAuditEntry("UPDATE_REPORT", reportId, "SUCCESS", "Updated report");
+                report.AuditHash = _auditTrail.Last().CurrentHash;
+
+                Console.WriteLine($"[{NodeId}] Updated report {reportId}");
+                return true;
+            }
+        }
+
+        /// <summary>
+        /// Get a report from local storage.
+        /// </summary>
+        public IntelligenceReport GetReport(string reportId)
+        {
+            lock (_lock) //lock to prevent corruption during concurrent access
+            {
+                return _localStore.ContainsKey(reportId) ? _localStore[reportId].Clone() : null;
+            }
+        }
+        
+        /// <summary>
+        /// Get all reports from local storage.
+        /// </summary>
+        public List<IntelligenceReport> GetAllReports()
+        {
+            lock (_lock)
+            {
+                return _localStore.Values.Select(r => r.Clone()).ToList();
+            }
+        }
+
+
+        /// <summary>
+        /// Add an entry to the audit trail with hash chain integrity.
+        /// </summary>
+        private void AddAuditEntry(string action, string resourceId, string outcome, string details)
+        {
+            var entry = new AuditLog
+            {
+                ActorId = $"node_{NodeId}",
+                Action = action,
+                ResourceId = resourceId,
+                Outcome = outcome,
+                Details = details,
+                PreviousHash =
+                    _auditTrail.Count > 0 ? _auditTrail.Last().CurrentHash : "START" // Genesis hash for first entry
+            };
+
+            entry.CalculateHash();
+            _auditTrail.Add(entry);
         }
     }
 }

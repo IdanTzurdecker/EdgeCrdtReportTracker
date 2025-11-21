@@ -41,19 +41,14 @@ public class AuditLog
     public string ResourceId { get; set; }
 
     /// <summary>
-    /// Outcome of the action (SUCCESS, FAILURE, CONFLICT_RESOLVED).
+    /// Outcome of the action 
     /// </summary>
     [JsonPropertyName("outcome")]
     public string Outcome { get; set; }
+    
 
     /// <summary>
-    /// Classification level of the data involved.
-    /// </summary>
-    [JsonPropertyName("classification")]
-    public string Classification { get; set; }
-
-    /// <summary>
-    /// Hash of the previous audit entry (for hash chain integrity).
+    /// Hash of the previous audit entry 
     /// </summary>
     [JsonPropertyName("previousHash")]
     public string PreviousHash { get; set; }
@@ -80,7 +75,7 @@ public class AuditLog
     /// </summary>
     public void CalculateHash()
     {
-        string dataToHash = $"{EventId}|{Timestamp:O}|{ActorId}|{Action}|{ResourceId}|{Outcome}|{Classification}|{PreviousHash}|{Details}";
+        string dataToHash = $"{EventId}|{Timestamp:O}|{ActorId}|{Action}|{ResourceId}|{Outcome}|{PreviousHash}|{Details}";
         // deterministic
         using (SHA256 sha256 = SHA256.Create())
         {
