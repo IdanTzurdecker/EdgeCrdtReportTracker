@@ -4,6 +4,8 @@
 
 This project is my solution to the Forward Deployed Engineer coding challenge. I built an offline-first synchronization system for intelligence reports that can operate in environments with unreliable network connectivity (like military Forward Operating Bases with spotty SATCOM).
 This is a scenario based demo PoC.
+
+
 ---
 
 ## How to Run 
@@ -60,7 +62,7 @@ The application will run 4 demonstration scenarios showing:
 - Docker
 - C#
 
-#### Why C# / .NET?
+**Why I chose C# / .NET?**
 - Cross-platform 
 - Most comfortable for me to work with
 - Cloud-native
@@ -75,18 +77,18 @@ Proof of Concept that simulates distributed intelligence report tracker that wor
 TacticalSync/
 ├── Models/
 │   ├── VectorClock.cs          # "Causal" ordering mechanism
-│   ├── IntelligenceReport.cs   # SALUTE report data model (used salute format based on research)
-│   └── AuditLog.cs              # NIST-compliant audit entries
+│   ├── IntelligenceReport.cs   # Model for SALUTE report data model (used salute format based on research)
+│   └── AuditLog.cs              # model for a NIST-compliant audit entries
 ├── Core/
 │   ├── Node.cs                  # Distributed node (FOB/Command Center)
-│   ├── ConflictResolver.cs     # Hybrid CRDT merge logic
-│   └── NetworkController.cs    # Partition simulation
+│   ├── ConflictResolver.cs     # Class for Hybrid CRDT merge logic
+│   └── NetworkController.cs    # Class for Handling Partition simulation
 └── Program.cs                   # Demonstration scenarios
 ```
 
 ## My Synchronization Strategy
 
-I chose to implement a **simulation** of Ditto's sync mechanism rather than using the actual SDK, to demonstrate my understanding of distributed systems concepts.
+I chose to implement a simulation of Ditto's sync mechanism. This does not use Ditto itself, but the concepts.
 
 **Vector Clocks** track causality:
 - Each node has a logical clock: `{FOB_Alpha: 3, FOB_Bravo: 2}`
@@ -101,6 +103,10 @@ I chose to implement a **simulation** of Ditto's sync mechanism rather than usin
 
 
 ### Conflict Resolution Strategy
+
+All elements in Vector_A are less than or equal to Vector_B, and at least one element in V_A is strictly less than Vector_B
+
+** When comparing**
 
 1. **Check Causality**: Use vector clocks to see if one update happened after the other
     - If one version is clearly newer → accept it (no conflict!)
@@ -177,7 +183,7 @@ Production would add:
 - Brainstorming and research leads me to Merkle trees for verifying hash at root & Hub-and-Spoke Architecture
 
 ## Notes: 
-- Does not Automaticly trigger sync : Currently manual but would add background timers
+- Does not Automaticly trigger sync : This demo has manual syncs but would add background timers for automatic
 - Nodes use in-memory storage
 - Sync Triggers are manual 
   - Makes it easier to demo scenarios. In production would add background sync timers
