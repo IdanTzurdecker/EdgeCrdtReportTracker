@@ -6,8 +6,9 @@ class Program
 {
     static void Main(string[] args)
     {
-        RunScenario_BasicSync();
-        RunScenario_NetworkPartition();
+        //RunScenario_BasicSync();
+        //RunScenario_NetworkPartition();
+        RunScenario_ConcurrentConflicts();
     }
 
     static void RunScenario_BasicSync()
@@ -97,5 +98,83 @@ class Program
         Console.WriteLine($"  Equipment: {string.Join(", ", alphaReport.Equipment)}");
         Console.WriteLine("\n" + new string('=', 70));
         Console.WriteLine(new string('=', 70));
+    }
+
+    static void RunScenario_ConcurrentConflicts()
+    {
+        Console.WriteLine("\n" + new string('=', 70));
+        Console.WriteLine("SCENARIO 3: Concurrent Conflicts (Three FOBs)");
+        Console.WriteLine(new string('=', 70));
+
+        var network = new NetworkController();
+        var fobAlpha = new Node("FOB_Alpha");
+        var fobBravo = new Node("FOB_Bravo");
+        var fobCharlie = new Node("FOB_Charlie");
+
+        // All nodes start synced
+        Console.WriteLine("\n[Phase 1] All nodes synced");
+        var report = fobAlpha.CreateReport(" FIRST MESSGE: Enemies Gathering", 30, "123,123", "Fleet", "Tank");
+        network.TrySync(fobAlpha, fobBravo);
+        network.TrySync(fobBravo, fobCharlie);
+
+        // seperate all nodes
+        Console.WriteLine("\n[Phase 2] Complete network partition");
+        network.PartitionAll(fobAlpha, fobBravo, fobCharlie);
+
+        // Each node makes concurrent updates
+        Console.WriteLine("\n[Phase 3] Concurrent updates on all nodes");
+        Thread.Sleep(50); //  different report timestamps
+        fobAlpha.UpdateReport(report.Id, r =>
+        {
+            r.Size = 35;
+            r.Activity = "Hostile forces ADVANCING";
+            r.Equipment.Add("TRUCKS");
+        });
+
+        Thread.Sleep(50);
+        fobBravo.UpdateReport(report.Id, r =>
+        {
+            r.Size = 32;
+            r.Activity = "Hostile forces assembling STOPPED";
+            r.Equipment.Add("Helicopter");
+        });
+
+        Thread.Sleep(50);
+        fobCharlie.UpdateReport(report.Id, r =>
+        {
+            r.Size = 40;
+            r.Activity = "Hostile forces assembling PREPARING";
+            r.Equipment.Add("Artillery");
+        });
+
+        // Reconnect network
+        // can be done in any order, as per communicative prop of crdts
+        Console.WriteLine("\n[Phase 4] network reconnection and sync");
+        network.Connect("FOB_Alpha", "FOB_Bravo");
+        network.TrySync(fobAlpha, fobBravo);
+
+        network.Connect("FOB_Bravo", "FOB_Charlie");
+        network.TrySync(fobBravo, fobCharlie);
+
+        network.Connect("FOB_Alpha", "FOB_Charlie");
+        network.TrySync(fobAlpha, fobCharlie);
+
+        // Final states
+        Console.WriteLine("\n[Phase 5] Final converged state");
+        fobAlpha.PrintState();
+        fobBravo.PrintState();
+        fobCharlie.PrintState();
+
+        // Verify 
+        var alphaReport = fobAlpha.GetReport(report.Id);
+        var bravoReport = fobBravo.GetReport(report.Id);
+        var charlieReport = fobCharlie.GetReport(report.Id);
+
+        bool converged = alphaReport.Equipment.SetEquals(bravoReport.Equipment) &&
+                         bravoReport.Equipment.SetEquals(charlieReport.Equipment);
+
+        Console.WriteLine($"Three-way Convergence: {(converged ? "✓ SUCCESS" : "✗ FAILED")}");
+        Console.WriteLine(
+            $"Final Equipment: {string.Join(", ", alphaReport.Equipment)} ({alphaReport.Equipment.Count} items)");
     }
 }

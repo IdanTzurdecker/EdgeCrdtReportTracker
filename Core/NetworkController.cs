@@ -50,6 +50,20 @@ namespace TacticalSync.Core
         {
             return !_disconnectedPairs.Contains((nodeA, nodeB));
         }
+        
+        /// <summary>
+        /// Simulate a complete network partition (all nodes disconnected).
+        /// </summary>
+        public void PartitionAll(params Node[] nodes)
+        {
+            for (int i = 0; i < nodes.Length; i++)
+            {
+                for (int j = i + 1; j < nodes.Length; j++)
+                {
+                    Disconnect(nodes[i].NodeId, nodes[j].NodeId);
+                }
+            }
+        }
 
         /// <summary>
         /// Attempt synchronization between two nodes.
