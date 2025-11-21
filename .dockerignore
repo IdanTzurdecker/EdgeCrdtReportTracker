@@ -1,0 +1,23 @@
+# Build artifacts
+**/bin/
+**/obj/
+**/out/
+
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Documentation
+*.md
+!README.md
+
+# Git
+.git/
+.gitignore
+.gitattributes

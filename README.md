@@ -1,6 +1,8 @@
+## How to Run
+
 ### Prerequisites
 
-- .NET 8.0 SDK or later
+- .NET 9.0 SDK or later
 
 ### Local Execution
 
@@ -11,4 +13,18 @@ cd TacticalSync
 # Build and run
 dotnet build
 dotnet run
+```
+
+### Docker Execution
+
+#### Build Image
+
+```bash
+docker build -t tactical-sync:latest -f Dockerfile .
+```
+
+#### Run Container
+
+```bash
+docker run --rm tactical-sync:latest
 ```
