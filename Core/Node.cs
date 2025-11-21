@@ -12,15 +12,23 @@ namespace TacticalSync.Core
         /// Local data store - thread-safe dictionary of intelligence reports.
         /// </summary>
         public string NodeId { get; set; }
+
         /// <summary>
         /// Node's vector clock tracking its logical time.
         /// </summary>
         private readonly Dictionary<string, string> _localStore;
 
+        /// <summary>
+        /// Node's vector clock tracking its logical time.
+        /// </summary>
         private VectorClock _vectorClock;
 
+
+        /// <summary>
+        /// Append-only audit log with cryptographic hash chain.
+        /// </summary>
         private readonly List<AuditLog> _auditTrail;
-        // datastruck <auditModel>
+
         /// <summary>
         /// Lock for thread-safe operations.
         /// </summary>
