@@ -16,12 +16,12 @@ namespace TacticalSync.Core
         /// <summary>
         /// Node's vector clock tracking its logical time.
         /// </summary>
-        private readonly Dictionary<string, string> _localStore;
+        private readonly Dictionary<string, IntelligenceReport> _localStore;
 
         /// <summary>
         /// Node's vector clock tracking its logical time.
         /// </summary>
-        private VectorClock _vectorClock;
+        private VectorClock _nodeClock;
 
 
         /// <summary>
@@ -37,9 +37,36 @@ namespace TacticalSync.Core
         public Node(string nodeId)
         {
             NodeId = nodeId;
-            _localStore = new Dictionary<string, string>();
-            _vectorClock = new VectorClock();
+            _localStore = new Dictionary<string, IntelligenceReport>();
+            _nodeClock = new VectorClock();
             _auditTrail = new List<AuditLog>();
+        }
+        
+        /// <summary>
+        /// Create a new intelligence report on this node based on SALUTE format.
+        /// </summary>
+        public IntelligenceReport CreateReport(string activity, int size, string location, string unit, params string[] equipment)
+        {
+            lock (_lock)
+            {
+                var report = new IntelligenceReport
+                {
+                    Activity = activity,
+                    Size = size, // possibly create class for this with descriptive properties?
+                    Location = location, // TODO- use Tuple coordinates 
+                    Unit = unit,
+                    Equipment = new HashSet<string>(equipment),
+                    LastModifiedBy = NodeId,
+                    LastModified = DateTime.UtcNow,
+                    VectorClock = _nodeClock.Clone() // Clone the vector clock to avoid reference issues
+                };
+                
+                _nodeClock.Increment(NodeId); // Increment the vector clock for the node
+                report.VectorClock.Increment(NodeId); // Increment the vector clock for the node
+                
+                _localStore[report.Id] = report;
+                return report;
+            }
         }
     }
 }
