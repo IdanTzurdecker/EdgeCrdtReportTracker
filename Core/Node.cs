@@ -260,40 +260,39 @@ namespace TacticalSync.Core
         }
 
 
-        // /// <summary>
-        // /// Print current state of the node for debugging.
-        // /// </summary>
-        // public void PrintState()
-        // {
-        //     lock (_lock)
-        //     {
-        //         Console.WriteLine($"\n=== Node {NodeId} State ===");
-        //         Console.WriteLine($"Vector Clock: {_nodeClock}");
-        //         Console.WriteLine($"Reports: {_localStore.Count}");
-        //             
-        //         foreach (var report in _localStore.Values.OrderBy(r => r.Id))
-        //         {
-        //             Console.WriteLine($"  [{report.Id.Substring(0, 8)}] {report.Activity} " +
-        //                               $"(Size: {report.Size}, Location: {report.Location}) " +
-        //                               $"[Equipment: {string.Join(", ", report.Equipment)}] " +
-        //                               $"VC: {report.VectorClock} " +
-        //                               $"Modified: {report.LastModified:HH:mm:ss} by {report.LastModifiedBy}");
-        //         }
-        //             
-        //         Console.WriteLine($"Audit Trail: {_auditTrail.Count} entries");
-        //         Console.WriteLine($"Audit Chain Valid: {VerifyAuditChain()}");
-        //         Console.WriteLine("===================\n");
-        //     }
-        // }
-
         /// <summary>
-        /// Result of a synchronization operation.
+        /// Print current state of the node for debugging.
         /// </summary>
-        public class SyncResult
+        public void PrintState()
         {
-            public int ReportsReceived { get; set; }
-            public int ReportsUpdated { get; set; }
-            public int ConflictsResolved { get; set; }
+            lock (_lock)
+            {
+                Console.WriteLine($"\n=== Node {NodeId} State ===");
+                Console.WriteLine($"Vector Clock: {_nodeClock}");
+                Console.WriteLine($"Reports: {_localStore.Count}");
+                    
+                foreach (var report in _localStore.Values.OrderBy(r => r.Id))
+                {
+                    Console.WriteLine($"  [{report.Id.Substring(0, 8)}] {report.Activity} " +
+                                      $"(Size: {report.Size}, Location: {report.Location}) " +
+                                      $"[Equipment: {string.Join(", ", report.Equipment)}] " +
+                                      $"VC: {report.VectorClock} " +
+                                      $"Modified: {report.LastModified:HH:mm:ss} by {report.LastModifiedBy}");
+                }
+                    
+                Console.WriteLine($"Audit Trail: {_auditTrail.Count} entries");
+                Console.WriteLine($"Audit Chain Valid: {VerifyAuditChain()}");
+                Console.WriteLine("===================\n");
+            }
         }
+    }
+    /// <summary>
+    /// Result of a synchronization operation.
+    /// </summary>
+    public class SyncResult
+    {
+        public int ReportsReceived { get; set; }
+        public int ReportsUpdated { get; set; }
+        public int ConflictsResolved { get; set; }
     }
 }

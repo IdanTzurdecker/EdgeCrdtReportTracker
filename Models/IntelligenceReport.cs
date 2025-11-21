@@ -34,7 +34,7 @@ public class IntelligenceReport
 
     /// <summary>
     /// coordinates 
-    /// Format: "lat,longitude"
+    /// Format: "lat,longitude" (e.g., "34.0522,-118.2437")
     /// </summary>
     [JsonPropertyName("location")]
     public string Location { get; set; }
