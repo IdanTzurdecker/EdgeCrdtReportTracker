@@ -259,7 +259,17 @@ namespace TacticalSync.Core
                 return true;
             }
         }
-
+        
+        /// <summary>
+        /// Get audit trail for inspection.
+        /// </summary>
+        public List<AuditLog> GetAuditTrail()
+        {
+            lock (_lock)
+            {
+                return new List<AuditLog>(_auditTrail);
+            }
+        }
 
         /// <summary>
         /// Print current state of the node for debugging.

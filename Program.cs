@@ -9,6 +9,7 @@ class Program
         //RunScenario_BasicSync();
         //RunScenario_NetworkPartition();
         RunScenario_ConcurrentConflicts();
+        RunScenario_AuditIntegrity();
     }
 
     static void RunScenario_BasicSync()
@@ -100,6 +101,10 @@ class Program
         Console.WriteLine(new string('=', 70));
     }
 
+    
+    /// <summary>
+    /// Scenario 3: 3 nodes all with concurrent conflicting updates, then they resolve 
+    /// </summary>
     static void RunScenario_ConcurrentConflicts()
     {
         Console.WriteLine("\n" + new string('=', 70));
@@ -176,5 +181,55 @@ class Program
         Console.WriteLine($"Three-way Convergence: {(converged ? "✓ SUCCESS" : "✗ FAILED")}");
         Console.WriteLine(
             $"Final Equipment: {string.Join(", ", alphaReport.Equipment)} ({alphaReport.Equipment.Count} items)");
+    }
+
+    /// <summary>
+    /// Scenario 4: Audit integrity verification.
+    /// </summary>
+    static void RunScenario_AuditIntegrity()
+    {
+        Console.WriteLine("\n" + new string('=', 50));
+        Console.WriteLine("SCENARIO 4: Audit Trail Integrity ( using the NIST SP 800-53 Compliance)");
+        Console.WriteLine(new string('=', 50));
+
+        var fob = new Node("FOB_Test");
+
+        Console.WriteLine("\n[Phase 1] Create audit trail with multiple operations");
+        var report1 = fob.CreateReport("Test operation 1", 10, "123,123", "Test Unit", "Equipment1");
+        var report2 = fob.CreateReport("Test operation 2", 15, "123", "Test Unit", "Equipment2");
+        fob.UpdateReport(report1.Id, r => r.Size = 12);
+        fob.UpdateReport(report2.Id, r => r.Activity = "Updated activity");
+
+        Console.WriteLine("\n[Phase 2] Verify audit chain integrity");
+        var trail = fob.GetAuditTrail();
+        bool chainValid = fob.VerifyAuditChain();
+
+        Console.WriteLine($"Audit Trail Entries: {trail.Count}");
+        Console.WriteLine($"Chain Integrity: {(chainValid ? "is VALID" : "is BROKEN")}");
+
+        Console.WriteLine("\nAudit Trail:");
+        foreach (var entry in trail)
+        {
+            Console.WriteLine(
+                $"  [{entry.Timestamp:HH:mm:ss}] {entry.Action} on {entry.ResourceId} by {entry.ActorId}");
+            Console.WriteLine($"    Outcome: {entry.Outcome}");
+            Console.WriteLine($"    Hash: {entry.CurrentHash.Substring(0, 16)}...");
+            Console.WriteLine(
+                $"    Prev: {entry.PreviousHash.Substring(0, Math.Min(16, entry.PreviousHash.Length))}...");
+        }
+
+        // Demonstrate tamper detection
+        Console.WriteLine("\n[Phase 3] test for tamper");
+        Console.WriteLine("modifying the audit entry");
+
+        var auditCopy = fob.GetAuditTrail();
+        if (auditCopy.Count > 2)
+        {
+            auditCopy[1].Details = "TAMPERED DATA";
+            bool isValid = auditCopy[1].VerifyHash();
+            Console.WriteLine($"Tampered entry verification: {(isValid ? "is UNDETECTED" : "is DETECTED")}");
+        }
+
+        Console.WriteLine($"\nOriginal chain still valid: {(fob.VerifyAuditChain() ? "YES" : "NO")}");
     }
 }
