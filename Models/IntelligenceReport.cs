@@ -7,6 +7,7 @@ public class IntelligenceReport
     // Should follow SALUTE format
     // sha-256 hash
     // is System.Text.Json.Serialization deterministic?
+    
     /// <summary>
     /// Unique identifier for this report (UUID v4).
     /// </summary>
@@ -20,55 +21,42 @@ public class IntelligenceReport
     public VectorClock VectorClock { get; set; }
 
     /// <summary>
-    /// Estimated number of enemy combatants (LWW-Register).
+    /// Estimated number of enemy combatants
     /// </summary>
     [JsonPropertyName("size")]
     public int Size { get; set; }
 
     /// <summary>
-    /// Description of enemy activity, e.g., "Digging in", "Moving north" (LWW-Register).
+    /// Description of enemy activity
     /// </summary>
     [JsonPropertyName("activity")]
     public string Activity { get; set; }
 
     /// <summary>
-    /// GeoJSON coordinates of enemy position (LWW-Register).
-    /// Format: "latitude,longitude"
+    /// coordinates 
+    /// Format: "lat,longitude"
     /// </summary>
     [JsonPropertyName("location")]
     public string Location { get; set; }
 
     /// <summary>
-    /// Identification of enemy unit, e.g., "Republican Guard" (LWW-Register).
+    /// Description of enemy unit type
     /// </summary>
     [JsonPropertyName("unit")]
     public string Unit { get; set; }
 
     /// <summary>
-    /// ISO 8601 timestamp when the event was observed (Immutable).
+    /// ISO 8601 timestamp 
     /// </summary>
     [JsonPropertyName("time")]
     public DateTime Time { get; set; }
 
     /// <summary>
-    /// Equipment observed (G-Set - Grow-Only Set).
-    /// Multiple analysts might spot different weapons; union provides complete picture.
+    /// Equipment observed
     /// </summary>
     [JsonPropertyName("equipment")]
     public HashSet<string> Equipment { get; set; }
-
-    /// <summary>
-    /// Classification level for access control.
-    /// </summary>
-    [JsonPropertyName("classificationLevel")]
-    public string ClassificationLevel { get; set; }
-
-    /// <summary>
-    /// Tombstone flag for logical deletion in CRDT systems.
-    /// </summary>
-    [JsonPropertyName("isDeleted")]
-    public bool IsDeleted { get; set; }
-
+    
     /// <summary>
     /// Last modified timestamp (wall clock) for LWW tie-breaking.
     /// </summary>
@@ -86,4 +74,31 @@ public class IntelligenceReport
     /// </summary>
     [JsonPropertyName("auditHash")]
     public string AuditHash { get; set; }
+    
+    public IntelligenceReport()
+    {
+        Id = Guid.NewGuid().ToString();
+        VectorClock = new VectorClock();
+        Equipment = new HashSet<string>();
+        Time = DateTime.UtcNow;
+        LastModified = DateTime.UtcNow;
+    }
+
+    public IntelligenceReport Clone()
+    {
+        return new IntelligenceReport
+        {
+            Id = this.Id,
+            VectorClock = this.VectorClock.Clone(),
+            Size = this.Size,
+            Activity = this.Activity,
+            Location = this.Location,
+            Unit = this.Unit,
+            Time = this.Time,
+            Equipment = new HashSet<string>(this.Equipment),
+            LastModified = this.LastModified,
+            LastModifiedBy = this.LastModifiedBy,
+            AuditHash = this.AuditHash
+        };
+    }
 }
