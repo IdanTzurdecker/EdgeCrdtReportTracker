@@ -168,8 +168,8 @@ Audit protection | Cryptographic hash chain prevents tampering
 
 Currently simulated:
 - Network communication (direct method calls, not HTTP/gRPC)
-- Authentication (just node IDs, not actual PKI)
-- Encryption in transit (no TLS, just hash chains for integrity)
+- Authentication (currently uses node ID)
+- Encryption in transit
 
 
 Production would add:
