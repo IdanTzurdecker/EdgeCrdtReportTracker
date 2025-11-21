@@ -1,3 +1,5 @@
+using TacticalSync.Models;
+
 namespace TacticalSync.Core
 {
     /// <summary>
@@ -14,7 +16,10 @@ namespace TacticalSync.Core
         /// Node's vector clock tracking its logical time.
         /// </summary>
         private readonly Dictionary<string, string> _localStore;
-        // vectorClock model
+
+        private VectorClock _vectorClock;
+
+        private readonly List<AuditLog> _auditTrail;
         // datastruck <auditModel>
         /// <summary>
         /// Lock for thread-safe operations.
@@ -25,6 +30,8 @@ namespace TacticalSync.Core
         {
             NodeId = nodeId;
             _localStore = new Dictionary<string, string>();
+            _vectorClock = new VectorClock();
+            _auditTrail = new List<AuditLog>();
         }
     }
 }
