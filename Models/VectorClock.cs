@@ -54,7 +54,8 @@ public class VectorClock
 
     /// <summary>
     /// Compare two vector clocks to determine causal relationship.
-    /// Returns: -1 if this < other (this causally precedes other)
+    /// Returns: Int:
+    ///           -1 if this < other (this causally precedes other)
     ///           0 if concurrent (neither causally precedes the other)
     ///           1 if this > other (this causally follows other)
     /// </summary>

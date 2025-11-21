@@ -140,9 +140,10 @@ namespace TacticalSync.Core
                 var localReportIds = new HashSet<string>(_localStore.Keys);
                 var remoteReportIds = new HashSet<string>(otherNode._localStore.Keys);
                 
-                // Phase 2: Calculate Delta (what needs to be sent/received)
+                // Phase 2: Determine Delta (what needs to be sent/received)
+                // Ven diagram using set operations
                 var toReceive = remoteReportIds.Except(localReportIds).ToList();
-                var toSend = localReportIds.Except(remoteReportIds).ToList();
+                //var toSend = localReportIds.Except(remoteReportIds).ToList();
                 var toMerge = localReportIds.Intersect(remoteReportIds).ToList();
                 
                 // Phase 3: Receive new reports from remote
@@ -174,7 +175,7 @@ namespace TacticalSync.Core
                     
                     if (resolved.Id != localReport.Id)
                     {
-                        throw new InvalidOperationException("Conflict resolution changed report ID");
+                        throw new InvalidOperationException("Conflict resolution did not resolve correctly. Mismatched IDs.");
                     }
                     
                     bool wasConflict = localReport.VectorClock.CompareTo(remoteReport.VectorClock) == 0;
@@ -286,6 +287,7 @@ namespace TacticalSync.Core
             }
         }
     }
+    
     /// <summary>
     /// Result of a synchronization operation.
     /// </summary>

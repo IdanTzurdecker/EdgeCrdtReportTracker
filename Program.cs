@@ -7,7 +7,7 @@ class Program
     static void Main(string[] args)
     {
         RunScenario_BasicSync();
-        RunScenario2_NetworkPartition();
+        RunScenario_NetworkPartition();
     }
 
     static void RunScenario_BasicSync()
@@ -23,7 +23,7 @@ class Program
         // Both nodes online and synced
         Console.WriteLine("\n[Phase 1] Initial sync - both nodes online");
         fobAlpha.CreateReport("Enemy patrol observed", 12, "123,123", "Infantry Squad", "AK-47", "RPG");
-        commandCenter.CreateReport("Artillery position identified", 6, "412,142", "Artillery Battery", "Howitzer");
+        commandCenter.CreateReport("Artillery position identified", 6, "412,142", "Artillery Battery", "tank");
 
         network.TrySync(fobAlpha, commandCenter);
 
@@ -36,10 +36,10 @@ class Program
     /// <summary>
     /// Scenario 2: Network partition and divergence, then reconciliation.
     /// </summary>
-    static void RunScenario2_NetworkPartition()
+    static void RunScenario_NetworkPartition()
     {
         Console.WriteLine("\n" + new string('=', 70));
-        Console.WriteLine("SCENARIO 2: Network Partition and Recovery (DDIL Connectivity)");
+        Console.WriteLine("SCENARIO 2: Network Partition and Recovery");
         Console.WriteLine(new string('=', 70));
 
         var network = new NetworkController();
@@ -49,7 +49,7 @@ class Program
         // Initial sync
         Console.WriteLine("\n[Phase 1] Initial sync");
         var report1 = fobAlpha.CreateReport("Enemy convoy moving north", 20, "123,123", "Motorized Infantry",
-            "Truck", "AK-47");
+            "Truck", "Guns");
         network.TrySync(fobAlpha, fobBravo);
 
         // Simulate SATCOM outage
@@ -62,15 +62,15 @@ class Program
         fobAlpha.UpdateReport(report1.Id, r =>
         {
             r.Size = 25;
-            r.Activity = "Enemy convoy stopped, digging defensive positions";
+            r.Activity = "Enemy stopped moving";
             r.Equipment.Add("Mortar");
         });
 
         fobBravo.UpdateReport(report1.Id, r =>
         {
             r.Size = 18;
-            r.Activity = "Enemy convoy moving north, increased speed";
-            r.Equipment.Add("Machine Gun");
+            r.Activity = "Enemy moving north";
+            r.Equipment.Add("Gun");
         });
 
         Console.WriteLine("\n[Phase 4] Attempting sync during outage (should fail)");

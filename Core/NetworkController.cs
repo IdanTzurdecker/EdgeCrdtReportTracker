@@ -53,6 +53,7 @@ namespace TacticalSync.Core
 
         /// <summary>
         /// Attempt synchronization between two nodes.
+        /// Syncs unless disconnected.
         /// Returns null if nodes are disconnected.
         /// </summary>
         public SyncResult TrySync(Node nodeA, Node nodeB)
