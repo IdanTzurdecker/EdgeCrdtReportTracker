@@ -182,8 +182,7 @@ Production would add:
 - only send necessary reports, which are changed reports (already done)
 - Brainstorming and research leads me to Merkle trees for verifying hash at root & Hub-and-Spoke Architecture
 
-## Notes: 
-- Does not Automaticly trigger sync : This demo has manual syncs but would add background timers for automatic
+## Notes:
 - Nodes use in-memory storage
-- Sync Triggers are manual 
-  - Makes it easier to demo scenarios. In production would add background sync timers
+- Sync Triggers are manual
+  - Does not Automaticly trigger sync : This demo has manual syncs but would add background timers for automatic
