@@ -5,9 +5,9 @@ using TacticalSync.Models;
 namespace TacticalSync.Core
 {
     /// <summary>
-    ///  hybrid conflict resolution 
-    /// "Causal Dominance Check" using Vector Clocks
-    /// Concurrency Detection
+    /// Implements hybrid conflict resolution 
+    /// Phase 1: Causal Dominance Check (via Vector Clocks)
+    /// Phase 2: Concurrency Detection
     /// Phase 3: Deterministic LWW (Last-Write-Wins) with tie-breaking
     /// </summary>
     public static class ConflictResolver
