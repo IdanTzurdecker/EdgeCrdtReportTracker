@@ -102,6 +102,7 @@ namespace TacticalSync.Core
             }
         }
 
+
         /// <summary>
         /// Get a report from local storage.
         /// </summary>
@@ -112,7 +113,7 @@ namespace TacticalSync.Core
                 return _localStore.ContainsKey(reportId) ? _localStore[reportId].Clone() : null;
             }
         }
-        
+
         /// <summary>
         /// Get all reports from local storage.
         /// </summary>
@@ -123,7 +124,86 @@ namespace TacticalSync.Core
                 return _localStore.Values.Select(r => r.Clone()).ToList();
             }
         }
-
+        
+         /// <summary>
+        /// Synchronize with another node (push-pull delta sync).
+        /// </summary>
+        public SyncResult SyncWith(Node otherNode)
+        {
+            lock (_lock)
+            {
+                var result = new SyncResult();
+                
+                Console.WriteLine($"\n[SYNC] {NodeId} <-> {otherNode.NodeId}");
+                
+                // Phase 1: Knowledge Exchange (compare what each node has)
+                var localReportIds = new HashSet<string>(_localStore.Keys);
+                var remoteReportIds = new HashSet<string>(otherNode._localStore.Keys);
+                
+                // Phase 2: Calculate Delta (what needs to be sent/received)
+                var toReceive = remoteReportIds.Except(localReportIds).ToList();
+                var toSend = localReportIds.Except(remoteReportIds).ToList();
+                var toMerge = localReportIds.Intersect(remoteReportIds).ToList();
+                
+                // Phase 3: Receive new reports from remote
+                foreach (var reportId in toReceive)
+                {
+                    var remoteReport = otherNode.GetReport(reportId);
+                    _localStore[reportId] = remoteReport;
+                    _nodeClock.Merge(remoteReport.VectorClock);
+                    result.ReportsReceived++;
+                    
+                    AddAuditEntry("SYNC", reportId, "SUCCESS", $"Received new report from {otherNode.NodeId}");
+                }
+                
+                // Phase 4: Merge and Reconcile conflicting reports
+                foreach (var reportId in toMerge)
+                {
+                    var localReport = _localStore[reportId];
+                    var remoteReport = otherNode.GetReport(reportId);
+                    
+                    // Check if they're already identical
+                    if (localReport.VectorClock.CompareTo(remoteReport.VectorClock) == 0 &&
+                        localReport.LastModified == remoteReport.LastModified)
+                    {
+                        continue;
+                    }
+                    
+                    // Resolve conflict
+                    var resolved = ConflictResolver.Resolve(localReport, remoteReport);
+                    
+                    if (resolved.Id != localReport.Id)
+                    {
+                        throw new InvalidOperationException("Conflict resolution changed report ID");
+                    }
+                    
+                    bool wasConflict = localReport.VectorClock.CompareTo(remoteReport.VectorClock) == 0;
+                    
+                    _localStore[reportId] = resolved;
+                    _nodeClock.Merge(resolved.VectorClock);
+                    
+                    if (wasConflict)
+                    {
+                        result.ConflictsResolved++;
+                        AddAuditEntry("SYNC", reportId, "CONFLICT_RESOLVED", 
+                            $"Resolved conflict with {otherNode.NodeId}");
+                    }
+                    else
+                    {
+                        result.ReportsUpdated++;
+                        AddAuditEntry("SYNC", reportId, "SUCCESS", 
+                            $"Updated from {otherNode.NodeId}");
+                    }
+                }
+                
+                Console.WriteLine($"[SYNC] {NodeId} <- {otherNode.NodeId}: " +
+                                $"Received={result.ReportsReceived}, " +
+                                $"Updated={result.ReportsUpdated}, " +
+                                $"Conflicts={result.ConflictsResolved}");
+                
+                return result;
+            }
+        }
 
         /// <summary>
         /// Add an entry to the audit trail with hash chain integrity.
@@ -143,6 +223,77 @@ namespace TacticalSync.Core
 
             entry.CalculateHash();
             _auditTrail.Add(entry);
+        }
+
+        /// <summary>
+        /// Verify the integrity of the entire audit chain.
+        /// </summary>
+        public bool VerifyAuditChain()
+        {
+            lock (_lock)
+            {
+                for (int i = 0; i < _auditTrail.Count; i++)
+                {
+                    var entry = _auditTrail[i];
+
+                    // Verify hash
+                    if (!entry.VerifyHash())
+                    {
+                        Console.WriteLine($"[{NodeId}] Audit chain broken at index {i}: Hash mismatch");
+                        return false;
+                    }
+
+                    // Verify chain link
+                    if (i > 0)
+                    {
+                        var prevEntry = _auditTrail[i - 1];
+                        if (entry.PreviousHash != prevEntry.CurrentHash)
+                        {
+                            Console.WriteLine($"[{NodeId}] Audit chain broken at index {i}: Chain link mismatch");
+                            return false;
+                        }
+                    }
+                }
+
+                return true;
+            }
+        }
+
+
+        // /// <summary>
+        // /// Print current state of the node for debugging.
+        // /// </summary>
+        // public void PrintState()
+        // {
+        //     lock (_lock)
+        //     {
+        //         Console.WriteLine($"\n=== Node {NodeId} State ===");
+        //         Console.WriteLine($"Vector Clock: {_nodeClock}");
+        //         Console.WriteLine($"Reports: {_localStore.Count}");
+        //             
+        //         foreach (var report in _localStore.Values.OrderBy(r => r.Id))
+        //         {
+        //             Console.WriteLine($"  [{report.Id.Substring(0, 8)}] {report.Activity} " +
+        //                               $"(Size: {report.Size}, Location: {report.Location}) " +
+        //                               $"[Equipment: {string.Join(", ", report.Equipment)}] " +
+        //                               $"VC: {report.VectorClock} " +
+        //                               $"Modified: {report.LastModified:HH:mm:ss} by {report.LastModifiedBy}");
+        //         }
+        //             
+        //         Console.WriteLine($"Audit Trail: {_auditTrail.Count} entries");
+        //         Console.WriteLine($"Audit Chain Valid: {VerifyAuditChain()}");
+        //         Console.WriteLine("===================\n");
+        //     }
+        // }
+
+        /// <summary>
+        /// Result of a synchronization operation.
+        /// </summary>
+        public class SyncResult
+        {
+            public int ReportsReceived { get; set; }
+            public int ReportsUpdated { get; set; }
+            public int ConflictsResolved { get; set; }
         }
     }
 }
