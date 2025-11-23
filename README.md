@@ -2,7 +2,7 @@
 
 ## Overview
 
-This project is my solution to the Forward Deployed Engineer coding challenge. I built an offline-first synchronization system for intelligence reports that can operate in environments with unreliable network connectivity (like military Forward Operating Bases with spotty SATCOM).
+This project is my solution to the Forward Deployed Engineer coding challenge. I built an offline-first synchronization system for intelligence reports that can operate in environments with unreliable network connectivity (like military Forward Operating Bases with a spotty SATCOM connection).
 This is a scenario based demo PoC.
 
 
@@ -21,7 +21,7 @@ Clone Repository
 
 ```bash
 # Navigate to project directory
-cd TacticalSync
+cd TacticalSync/src/TacticalSync
 
 # Build and run
 dotnet build
