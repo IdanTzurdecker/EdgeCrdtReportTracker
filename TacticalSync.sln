@@ -5,6 +5,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{2358601B-AAF
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TacticalSync", "src\TacticalSync\TacticalSync.csproj", "{0950E6A2-CB6A-4DBB-A403-62832410343E}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{C10CBC1C-9ACD-425E-95FB-F82E29D012A2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TacticalSync.Tests", "tests\TacticalSync.Tests\TacticalSync.Tests.csproj", "{A7D3363C-334C-4B90-B4D9-84BF4A4D11A5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,8 +31,21 @@ Global
 		{0950E6A2-CB6A-4DBB-A403-62832410343E}.Release|x64.Build.0 = Release|Any CPU
 		{0950E6A2-CB6A-4DBB-A403-62832410343E}.Release|x86.ActiveCfg = Release|Any CPU
 		{0950E6A2-CB6A-4DBB-A403-62832410343E}.Release|x86.Build.0 = Release|Any CPU
+		{A7D3363C-334C-4B90-B4D9-84BF4A4D11A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A7D3363C-334C-4B90-B4D9-84BF4A4D11A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A7D3363C-334C-4B90-B4D9-84BF4A4D11A5}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{A7D3363C-334C-4B90-B4D9-84BF4A4D11A5}.Debug|x64.Build.0 = Debug|Any CPU
+		{A7D3363C-334C-4B90-B4D9-84BF4A4D11A5}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A7D3363C-334C-4B90-B4D9-84BF4A4D11A5}.Debug|x86.Build.0 = Debug|Any CPU
+		{A7D3363C-334C-4B90-B4D9-84BF4A4D11A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A7D3363C-334C-4B90-B4D9-84BF4A4D11A5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A7D3363C-334C-4B90-B4D9-84BF4A4D11A5}.Release|x64.ActiveCfg = Release|Any CPU
+		{A7D3363C-334C-4B90-B4D9-84BF4A4D11A5}.Release|x64.Build.0 = Release|Any CPU
+		{A7D3363C-334C-4B90-B4D9-84BF4A4D11A5}.Release|x86.ActiveCfg = Release|Any CPU
+		{A7D3363C-334C-4B90-B4D9-84BF4A4D11A5}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{0950E6A2-CB6A-4DBB-A403-62832410343E} = {2358601B-AAFD-4851-8350-B34013DFC117}
+		{A7D3363C-334C-4B90-B4D9-84BF4A4D11A5} = {C10CBC1C-9ACD-425E-95FB-F82E29D012A2}
 	EndGlobalSection
 EndGlobal

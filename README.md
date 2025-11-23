@@ -47,11 +47,21 @@ docker build -t tactical-sync:latest -f Dockerfile .
 ```bash
 docker run --rm tactical-sync:latest
 ```
+
 The application will run 4 demonstration scenarios showing:
 1. A Basic sync between two nodes
 2. Network partition, offline updates, and then automatic conflict resolution
 3. Three-way concurrent conflicts with consistency at the end
 4. An Audit trail integrity test and tamper detection test
+
+#### Run Unit Tests
+
+```bash
+## root
+cd TacticalSync 
+
+dotnet test --verbosity normal
+```
 
 
 ## About TacticalSync
