@@ -1,4 +1,6 @@
-﻿// See https://aka.ms/new-console-template for more information
+﻿// todo - dockerize server
+//todo unit tests
+//todo persistant db (nosql or sqlite?)
 
 using TacticalSync.Core;
 
@@ -8,12 +10,29 @@ class Program
     /// Tactical Edge Synchronization PoC 
     /// Simulates offline-first data synchronization.
     /// </summary>
-    static void Main(string[] args)
+    static async Task Main(string[] args)
     {
+        // Check if HTTP sync mode is requested
+        if (args.Length > 0 && args[0] == "--http")
+        {
+            await RunScenario_HttpSync();
+            return;
+        }
+
+        // Run local simulation scenarios
         RunScenario_BasicSync();
         RunScenario_NetworkPartition();
         RunScenario_ConcurrentConflicts();
         RunScenario_AuditIntegrity();
+
+        // Show HTTP sync instructions
+        Console.WriteLine("\n" + new string('=', 70));
+        Console.WriteLine("HTTP SYNC MODE");
+        Console.WriteLine(new string('=', 70));
+        Console.WriteLine("\nTo test HTTP synchronization with a server:");
+        Console.WriteLine("  1. Start the server:  dotnet run --project src/TacticalSync.Server");
+        Console.WriteLine("  2. Run HTTP client:   dotnet run --project src/TacticalSync -- --http");
+        Console.WriteLine(new string('=', 70));
     }
 
     static void RunScenario_BasicSync()
@@ -235,5 +254,86 @@ class Program
         }
 
         Console.WriteLine($"\nOriginal chain still valid: {(fob.VerifyAuditChain() ? "YES (incorrect)" : "NO (correct)")}"); // should be No since the returned List copies references
+    }
+
+    /// <summary>
+    /// Scenario 5: HTTP Synchronization with Remote Server
+    /// Demonstrates real HTTP-based sync with TacticalSync.Server
+    /// </summary>
+    static async Task RunScenario_HttpSync()
+    {
+        Console.WriteLine(@"
+╔══════════════════════════════════════════════════════════════════╗
+║           SCENARIO 5: HTTP Synchronization                        ║
+║              Real network sync with TacticalSync.Server           ║
+╚══════════════════════════════════════════════════════════════════╝
+");
+
+        const string serverUrl = "http://localhost:5000";
+
+        // Create HTTP-enabled nodes
+        var fobAlpha = new HttpNode("FOB_Alpha", serverUrl);
+        var fobBravo = new HttpNode("FOB_Bravo", serverUrl);
+
+        // Check server health
+        Console.WriteLine("[Phase 0] Checking server connectivity...");
+        var serverHealthy = await fobAlpha.CheckServerHealthAsync();
+        
+        if (!serverHealthy)
+        {
+            Console.WriteLine("\n❌ ERROR: Server not reachable at " + serverUrl);
+            Console.WriteLine("Please start the server first:");
+            Console.WriteLine("  dotnet run --project src/TacticalSync.Server");
+            return;
+        }
+        
+        Console.WriteLine("✓ Server is healthy\n");
+
+        // Phase 1: FOB Alpha creates reports locally
+        Console.WriteLine("[Phase 1] FOB Alpha creates reports locally");
+        fobAlpha.CreateReport("Enemy convoy spotted", 25, "34.05,-118.24", "Motorized Infantry", "Truck", "APC");
+        fobAlpha.CreateReport("Artillery position identified", 8, "34.10,-118.30", "Artillery Battery", "Howitzer");
+        fobAlpha.PrintState();
+
+        // Phase 2: FOB Alpha syncs with server
+        Console.WriteLine("\n[Phase 2] FOB Alpha syncs with server");
+        await fobAlpha.SyncWithServerAsync();
+
+        // Phase 3: FOB Bravo syncs with server (should receive Alpha's reports)
+        Console.WriteLine("\n[Phase 3] FOB Bravo syncs with server");
+        await fobBravo.SyncWithServerAsync();
+        fobBravo.PrintState();
+
+        // Phase 4: FOB Bravo creates new report
+        Console.WriteLine("\n[Phase 4] FOB Bravo creates new report");
+        fobBravo.CreateReport("Supply depot discovered", 15, "34.15,-118.20", "Support Unit", "Supply Truck", "Fuel Tank");
+        await fobBravo.SyncWithServerAsync();
+
+        // Phase 5: FOB Alpha syncs again to get Bravo's report
+        Console.WriteLine("\n[Phase 5] FOB Alpha syncs to get Bravo's report");
+        await fobAlpha.SyncWithServerAsync();
+
+        // Phase 6: Verify convergence
+        Console.WriteLine("\n[Phase 6] Final state - verifying convergence");
+        Console.WriteLine("\nFOB Alpha state:");
+        fobAlpha.PrintState();
+        
+        Console.WriteLine("\nFOB Bravo state:");
+        fobBravo.PrintState();
+
+        // Verify both have the same number of reports
+        var alphaReports = fobAlpha.GetAllReports();
+        var bravoReports = fobBravo.GetAllReports();
+
+        Console.WriteLine($"\n═══════════════════════════════════════════════════════════════════");
+        Console.WriteLine($"Convergence Check:");
+        Console.WriteLine($"  FOB Alpha reports: {alphaReports.Count}");
+        Console.WriteLine($"  FOB Bravo reports: {bravoReports.Count}");
+        Console.WriteLine($"  Reports match: {alphaReports.Count == bravoReports.Count}");
+        Console.WriteLine($"═══════════════════════════════════════════════════════════════════");
+
+        // Cleanup
+        fobAlpha.Dispose();
+        fobBravo.Dispose();
     }
 }

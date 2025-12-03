@@ -9,6 +9,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{C10CBC1C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TacticalSync.Tests", "tests\TacticalSync.Tests\TacticalSync.Tests.csproj", "{A7D3363C-334C-4B90-B4D9-84BF4A4D11A5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TacticalSync.Server", "src\TacticalSync.Server\TacticalSync.Server.csproj", "{9EAB0D85-2F7A-42E8-ACAB-91CF6B22833B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -43,9 +45,22 @@ Global
 		{A7D3363C-334C-4B90-B4D9-84BF4A4D11A5}.Release|x64.Build.0 = Release|Any CPU
 		{A7D3363C-334C-4B90-B4D9-84BF4A4D11A5}.Release|x86.ActiveCfg = Release|Any CPU
 		{A7D3363C-334C-4B90-B4D9-84BF4A4D11A5}.Release|x86.Build.0 = Release|Any CPU
+		{9EAB0D85-2F7A-42E8-ACAB-91CF6B22833B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9EAB0D85-2F7A-42E8-ACAB-91CF6B22833B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9EAB0D85-2F7A-42E8-ACAB-91CF6B22833B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{9EAB0D85-2F7A-42E8-ACAB-91CF6B22833B}.Debug|x64.Build.0 = Debug|Any CPU
+		{9EAB0D85-2F7A-42E8-ACAB-91CF6B22833B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{9EAB0D85-2F7A-42E8-ACAB-91CF6B22833B}.Debug|x86.Build.0 = Debug|Any CPU
+		{9EAB0D85-2F7A-42E8-ACAB-91CF6B22833B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9EAB0D85-2F7A-42E8-ACAB-91CF6B22833B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9EAB0D85-2F7A-42E8-ACAB-91CF6B22833B}.Release|x64.ActiveCfg = Release|Any CPU
+		{9EAB0D85-2F7A-42E8-ACAB-91CF6B22833B}.Release|x64.Build.0 = Release|Any CPU
+		{9EAB0D85-2F7A-42E8-ACAB-91CF6B22833B}.Release|x86.ActiveCfg = Release|Any CPU
+		{9EAB0D85-2F7A-42E8-ACAB-91CF6B22833B}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{0950E6A2-CB6A-4DBB-A403-62832410343E} = {2358601B-AAFD-4851-8350-B34013DFC117}
 		{A7D3363C-334C-4B90-B4D9-84BF4A4D11A5} = {C10CBC1C-9ACD-425E-95FB-F82E29D012A2}
+		{9EAB0D85-2F7A-42E8-ACAB-91CF6B22833B} = {2358601B-AAFD-4851-8350-B34013DFC117}
 	EndGlobalSection
 EndGlobal
