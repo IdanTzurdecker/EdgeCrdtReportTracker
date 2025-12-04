@@ -5,6 +5,8 @@
 This project is my solution to the Forward Deployed Engineer coding challenge. I built an offline-first synchronization system for intelligence reports that can operate in environments with unreliable network connectivity (like military Forward Operating Bases with a spotty SATCOM connection).
 This is a scenario based demo PoC.
 
+Checkout the [dev branch](https://github.com/IdanTzurdecker/EdgeCrdtReportTracker/tree/dev) for more recent development including a HTTP server.
+
 
 ---
 
