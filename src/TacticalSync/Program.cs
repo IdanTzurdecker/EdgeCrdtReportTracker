@@ -258,16 +258,10 @@ class Program
 
     /// <summary>
     /// Scenario 5: HTTP Synchronization with Remote Server
-    /// Demonstrates real HTTP-based sync with TacticalSync.Server
+    /// Demonstrates HTTP-based sync with TacticalSync.Server
     /// </summary>
     static async Task RunScenario_HttpSync()
-    {
-        Console.WriteLine(@"
-╔══════════════════════════════════════════════════════════════════╗
-║           SCENARIO 5: HTTP Synchronization                        ║
-║              Real network sync with TacticalSync.Server           ║
-╚══════════════════════════════════════════════════════════════════╝
-");
+    { 
 
         const string serverUrl = "http://localhost:5000";
 
@@ -281,7 +275,7 @@ class Program
         
         if (!serverHealthy)
         {
-            Console.WriteLine("\n❌ ERROR: Server not reachable at " + serverUrl);
+            Console.WriteLine("\n ERROR: Server not reachable at " + serverUrl);
             Console.WriteLine("Please start the server first:");
             Console.WriteLine("  dotnet run --project src/TacticalSync.Server");
             return;
@@ -325,12 +319,10 @@ class Program
         var alphaReports = fobAlpha.GetAllReports();
         var bravoReports = fobBravo.GetAllReports();
 
-        Console.WriteLine($"\n═══════════════════════════════════════════════════════════════════");
         Console.WriteLine($"Convergence Check:");
         Console.WriteLine($"  FOB Alpha reports: {alphaReports.Count}");
         Console.WriteLine($"  FOB Bravo reports: {bravoReports.Count}");
         Console.WriteLine($"  Reports match: {alphaReports.Count == bravoReports.Count}");
-        Console.WriteLine($"═══════════════════════════════════════════════════════════════════");
 
         // Cleanup
         fobAlpha.Dispose();
