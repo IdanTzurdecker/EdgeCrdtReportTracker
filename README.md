@@ -2,8 +2,7 @@
 
 ## Overview
 
-This project is an offline-first synchronization system for intelligence reports that can operate in environments with unreliable network connectivity (such as military Forward Operating Bases with a spotty SATCOM connection).
-This is a scenario based demo PoC.
+This project is an offline-first synchronization system for intelligence reports that can operate in environments with unreliable network connectivity (such as military Forward Operating Bases with a spotty SATCOM connection). This is achieved by leveraging **Conflict Free Replicated Data Types (CRDT)** data structres, formally defined in 2011. Read more about CRDT at https://crdt.tech.
 
 Checkout the [dev branch](https://github.com/IdanTzurdecker/EdgeCrdtReportTracker/tree/dev) for more recent development including a HTTP server.
 
